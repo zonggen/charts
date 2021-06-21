@@ -87,7 +87,7 @@ def main():
                                         help="API URL for the pull request")
     args = parser.parse_args()
     branch = args.branch.split("/")[-1]
-    ensure_only_chart_is_modified(args.api_url, args.repository, branch)
+    # ensure_only_chart_is_modified(args.api_url, args.repository, branch)
 
 
 if __name__ == "__main__":
