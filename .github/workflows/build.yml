@@ -5,10 +5,16 @@ on:
     types: [opened, synchronize, reopened, edited, ready_for_review]
 
 jobs:
-  chart-certification:
-    name: Chart Certification
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/labeler@v3
+      with:
+        repo-token: "${{ secrets.GITHUB_TOKEN }}"
+  chart-certification-partner:
+    name: Chart Certification - Partner
     runs-on: ubuntu-20.04
-    if: ${{ github.event.pull_request.draft == false }}
+    if: ${{ github.event.pull_request.draft == false && contains(github.event.pull_request.labels.*.name, 'partner') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2

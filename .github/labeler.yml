@@ -2,3 +2,9 @@ allow/chart-changes:
   - any: ['charts/partners/**/**/*', '!charts/partners/**/**/OWNERS']
   - any: ['charts/redhat/**/**/*', '!charts/partners/**/**/OWNERS']
   - any: ['charts/community/**/**/*', '!charts/partners/**/**/OWNERS']
+partner:
+  - all: ['charts/partners/**/**/*', '!charts/partners/**/**/OWNERS']
+redhat:
+  - all: ['charts/partners/**/**/*', '!charts/partners/**/**/OWNERS']
+community:
+  - all: ['charts/partners/**/**/*', '!charts/partners/**/**/OWNERS']
