@@ -12,12 +12,11 @@ jobs:
     - uses: actions/labeler@v3
       with:
         repo-token: "${{ secrets.GITHUB_TOKEN }}"
-    - run: sleep 5
   chart-certification-partner:
     name: Chart Certification - Partner
     needs: triage
     runs-on: ubuntu-20.04
-    if: ${{ github.event.pull_request.draft == false && github.event.label.name == 'partner' }}
+    if: ${{ github.event.pull_request.draft == false && contains(github.event.pull_request.labels.*.name, 'partner') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
