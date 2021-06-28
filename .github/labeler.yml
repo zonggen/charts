@@ -1,10 +1,10 @@
 allow/chart-changes:
   - any: ['charts/partners/**/**/*', '!charts/partners/**/**/OWNERS']
-  - any: ['charts/redhat/**/**/*', '!charts/partners/**/**/OWNERS']
-  - any: ['charts/community/**/**/*', '!charts/partners/**/**/OWNERS']
+  - any: ['charts/redhat/**/**/*', '!charts/redhat/**/**/OWNERS']
+  - any: ['charts/community/**/**/*', '!charts/community/**/**/OWNERS']
 partner:
-  - all: ['charts/partners/**/**/*', '!charts/partners/**/**/OWNERS']
+  - any: ['charts/partners/**/**/*', '!charts/partners/**/**/OWNERS']
 redhat:
-  - all: ['charts/partners/**/**/*', '!charts/partners/**/**/OWNERS']
+  - any: ['charts/redhat/**/**/*', '!charts/redhat/**/**/OWNERS']
 community:
-  - all: ['charts/partners/**/**/*', '!charts/partners/**/**/OWNERS']
+  - any: ['charts/community/**/**/*', '!charts/community/**/**/OWNERS']
