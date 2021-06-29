@@ -41,6 +41,24 @@ jobs:
     runs-on: ubuntu-20.04
     if: ${{ github.event.pull_request.draft == false && needs.triage.outputs.category == 'partner' }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3.x
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Sanity Check PR Content
+        id: sanity_check_pr_content
+        continue-on-error: true
+        env:
+          GITHUB_REF: ${{ github.ref }}
+        run: |
+          python3 -m venv ve1
+          cd scripts && ../ve1/bin/pip3 install -r requirements.txt && cd ..
+          cd scripts && ../ve1/bin/python3 setup.py install && cd ..
+
       - uses: actions/github-script@v3
         if: ${{ needs.triage.outputs.outcome == 'success'}}
         continue-on-error: true
