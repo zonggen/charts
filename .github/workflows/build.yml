@@ -511,9 +511,10 @@ jobs:
     name: Chart Certification - Community
     needs: [triage, chart-certification-redhat]
     runs-on: ubuntu-20.04
-    if: ${{ github.event.pull_request.draft == false && 
-      (needs.triage.outputs.category == 'community' || 
-      (needs.triage.outputs.category == 'redhat' && needs.chart-certification-redhat.outputs.verify_pr_outcome == 'failure')) }}
+    # if: ${{ github.event.pull_request.draft == false && 
+    #   (needs.triage.outputs.category == 'community' || 
+    #   (needs.triage.outputs.category == 'redhat' && needs.chart-certification-redhat.outputs.verify_pr_outcome == 'failure')) }}
+    if: ${{ github.event.pull_request.draft == false && needs.triage.outputs.category == 'community' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
