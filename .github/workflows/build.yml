@@ -40,6 +40,13 @@ jobs:
     needs: triage
     runs-on: ubuntu-20.04
     if: ${{ github.event.pull_request.draft == false && needs.triage.outputs.category == 'partner' }}
+    outputs:
+      sanity-error-message: ${{ needs.triage.outputs.sanity-error-message }}
+      report-exists: ${{ needs.triage.outputs.report-exists }}
+      category: ${{ needs.triage.outputs.category }}
+      chart-entry-name: ${{ needs.triage.outputs.chart-entry-name }}
+      chart-name-with-version: ${{ needs.triage.outputs.chart-name-with-version }}
+      outcome: needs.triage.outputs.outcome
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -507,16 +514,12 @@ jobs:
       #     fail_on_unmatched_files: true
       #   env:
       #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  chart-certification-community:
-    name: Chart Certification - Community
-    needs: [triage, chart-certification-redhat]
+
+  chart-certification-redhat-community:
+    name: Chart Certification - Community (Red Hat)
+    needs: chart-certification-redhat
     runs-on: ubuntu-20.04
-    # if: ${{ github.event.pull_request.draft == false && 
-    #   (needs.triage.outputs.category == 'community' || 
-    #   (needs.triage.outputs.category == 'redhat' && needs.chart-certification-redhat.outputs.verify_pr_outcome == 'failure')) }}
-    if: |
-      github.event.pull_request.draft == false &&
-      (needs.triage.outputs.category == 'community' || (needs.triage.outputs.category == 'redhat' && needs.chart-certification-redhat.outputs.verify_pr_outcome == 'failure'))
+    if: ${{ github.event.pull_request.draft == false && needs.chart-certification-redhat.outputs.verify_pr_outcome == 'failure' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -537,10 +540,10 @@ jobs:
           cd scripts && ../ve1/bin/python3 setup.py install && cd ..
 
       - uses: actions/github-script@v3
-        if: ${{ needs.triage.outputs.outcome == 'success'}}
+        if: ${{ needs.chart-certification-redhat.outputs.outcome == 'success' }}
         continue-on-error: true
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
+          github-token: ${{secrets.GITHUB_TOKEN }}
           script: |
             github.issues.addLabels({
               issue_number: context.issue.number,
@@ -550,7 +553,7 @@ jobs:
             })
 
       - uses: actions/github-script@v3
-        if: ${{ needs.triage.outputs.outcome == 'failure'}}
+        if: ${{ needs.chart-certification-redhat.outputs.outcome == 'failure' }}
         continue-on-error: true
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
@@ -563,7 +566,192 @@ jobs:
             })
 
       - name: Reflect on Sanity Check PR Content
-        if: ${{ needs.triage.outputs.outcome == 'failure'}}
+        if: ${{ needs.chart-certification-redhat.outputs.outcome == 'failure' }}
+        run: |
+          echo "The 'Sanity Check PR Content' step has failed."
+          exit 1
+
+      - name: 'Remove label from PR'
+        uses: actions/github-script@v3
+        continue-on-error: true
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            var issue_number = ${{ github.event.number }};
+            github.issues.removeLabel({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: Number(issue_number),
+              name: 'authorized-request'
+            })
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          path: "pr-branch"
+
+      - name: Get Date
+        id: get-date
+        if: ${{ needs.chart-certification-redhat.outputs.report-exists != 'true' }}
+        run: |
+          echo "::set-output name=date::$(/bin/date -u "+%Y%m%d")"
+        shell: bash
+
+      - uses: actions/cache@v2
+        if: ${{ needs.chart-certification-redhat.outputs.report-exists != 'true' }}
+        id: cache
+        with:
+          path: oc
+          key: ${{ steps.get-date.outputs.date }}
+
+      - name: Install oc
+        if: ${{ needs.chart-certification-redhat.outputs.report-exists != 'true' && steps.cache.outputs.cache-hit != 'true' }}
+        run: |
+          curl -sLO https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/openshift-client-linux.tar.gz
+          tar zxvf openshift-client-linux.tar.gz oc
+
+      - name: Get Repository
+        if: ${{ needs.chart-certification-redhat.outputs.report-exists != 'true' }}
+        id: get-repository
+        run: |
+          REPO=$(echo ${{ github.repository }} | tr '\/' '-')
+          echo "::set-output name=repository::${REPO}"
+        shell: bash
+
+      - name: 'Verify PR - generate report'
+        id: verify_pr
+        env:
+          KUBECONFIG: /tmp/ci-kubeconfig
+        run: |
+          API_SERVER=$( echo -n ${{ secrets.API_SERVER }} | base64 -d)
+          gpg --version
+          docker pull quay.io/redhat-certification/chart-verifier:latest
+          curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+          if [ "${{needs.chart-certification-redhat.outputs.report-exists}}" != "true" ]; then
+            ./oc login --insecure-skip-tls-verify --token=${{ secrets.CLUSTER_TOKEN }} --server=${API_SERVER}
+            ve1/bin/sa-for-chart-testing --create chart-verifier-ci-${{ steps.get-repository.outputs.repository }}-${{ github.event.number }} --token token.txt --server ${API_SERVER}
+          fi
+          cd pr-branch
+          ../ve1/bin/chart-pr-review --directory=../pr --verify-user=${{ github.event.pull_request.user.login }} --api-url=${{ github.event.pull_request._links.self.href }}
+          cd ..
+
+      - name: Delete Namespace
+        if: always() && needs.chart-certification-redhat.outputs.report-exists != 'true'
+        env:
+          KUBECONFIG: /tmp/ci-kubeconfig
+        run: |
+          API_SERVER=$( echo -n ${{ secrets.API_SERVER }} | base64 -d)
+          ./oc login --insecure-skip-tls-verify --token=${{ secrets.CLUSTER_TOKEN }} --server=${API_SERVER}
+          ve1/bin/sa-for-chart-testing --delete chart-verifier-ci-${{ steps.get-repository.outputs.repository }}-${{ github.event.number }}
+
+      - name: Save PR artifact
+        if: always()
+        run: |
+          ve1/bin/pr-artifact --directory=./pr --pr-number=${{ github.event.number }} --api-url=${{ github.event.pull_request._links.self.href }}
+
+      - name: 'Prepare PR comment'
+        if: always()
+        env:
+          SANITY_ERROR_MESSAGE: ${{ needs.chart-certification-redhat.outputs.sanity-error-message }}
+        run: |
+          python3 scripts/prepare_pr_comment.py ${{ needs.chart-certification-redhat.outputs.outcome }} ${{ steps.verify_pr.conclusion }} ${{ github.repository }}
+
+      - name: 'Comment on PR'
+        if: always()
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            var fs = require('fs');
+            var issue_number = ${{ github.event.number }};
+            var comment = fs.readFileSync('./pr/comment', {encoding:'utf8', flag:'r'});
+            github.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: Number(issue_number),
+              body: comment
+            });
+
+      - name: 'Add label to PR'
+        if: ${{ always() && needs.chart-certification-redhat.outputs.outcome == 'success'}}
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            var fs = require('fs');
+            var issue_number = ${{ github.event.number }};
+            var vendor_label = fs.readFileSync('./pr/vendor');
+            var chart_name = fs.readFileSync('./pr/chart');
+            if (vendor_label.toString() !== "" && chart_name.toString() !== "") {
+              github.issues.addLabels({
+                issue_number: Number(issue_number),
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                labels: ['authorized-request']
+            })};
+
+      - name: 'Approve PR'
+        id: approve_pr
+        if: ${{ steps.verify_pr.conclusion == 'success' }}
+        uses: hmarr/auto-approve-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  chart-certification-community:
+    name: Chart Certification - Community
+    needs: [triage, chart-certification-redhat]
+    runs-on: ubuntu-20.04
+    if: |
+      ${{ github.event.pull_request.draft == false && needs.triage.outputs.category == 'community' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3.x
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Sanity Check PR Content
+        id: sanity_check_pr_content
+        continue-on-error: true
+        env:
+          GITHUB_REF: ${{ github.ref }}
+        run: |
+          python3 -m venv ve1
+          cd scripts && ../ve1/bin/pip3 install -r requirements.txt && cd ..
+          cd scripts && ../ve1/bin/python3 setup.py install && cd ..
+
+      - uses: actions/github-script@v3
+        if: ${{ needs.triage.outputs.outcome == 'success' }}
+        continue-on-error: true
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN }}
+          script: |
+            github.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['sanity-ok']
+            })
+
+      - uses: actions/github-script@v3
+        if: ${{ needs.triage.outputs.outcome == 'failure' }}
+        continue-on-error: true
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.issues.removeLabel({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: 'sanity-ok'
+            })
+
+      - name: Reflect on Sanity Check PR Content
+        if: ${{ needs.triage.outputs.outcome == 'failure' }}
         run: |
           echo "The 'Sanity Check PR Content' step has failed."
           exit 1
