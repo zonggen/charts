@@ -530,7 +530,6 @@ jobs:
     needs: chart-certification-redhat
     runs-on: ubuntu-20.04
     if: |
-      always() &&
       github.event.pull_request.draft == false &&
       needs.chart-certification-redhat.outputs.verify-pr-outcome == 'failure'
     steps:
