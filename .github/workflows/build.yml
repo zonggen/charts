@@ -460,6 +460,9 @@ jobs:
         uses: hmarr/auto-approve-action@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: 'Print verify_pr'
+        continue-on-error: true
+        run: echo ${{ steps.verify_pr.outcome }}
     outputs:
       verify_pr_outcome: steps.verify_pr.outcome
 
