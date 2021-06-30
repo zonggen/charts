@@ -715,8 +715,7 @@ jobs:
     name: Chart Certification - Community
     needs: triage
     runs-on: ubuntu-20.04
-    if: |
-      ${{ github.event.pull_request.draft == false && needs.triage.outputs.category == 'community' }}
+    if: ${{ github.event.pull_request.draft == false && needs.triage.outputs.category == 'community' }}
     steps:
 
       - name: Print Category
