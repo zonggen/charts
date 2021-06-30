@@ -401,6 +401,9 @@ jobs:
           ../ve1/bin/chart-pr-review --directory=../pr --verify-user=${{ github.event.pull_request.user.login }} --api-url=${{ github.event.pull_request._links.self.href }}
           cd ..
 
+          # TODO: remove this
+          exit 1
+
       - name: Delete Namespace
         if: always() && needs.triage.outputs.report-exists != 'true'
         env:
