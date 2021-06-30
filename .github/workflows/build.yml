@@ -286,6 +286,10 @@ jobs:
     outputs:
       verify_pr_outcome: steps.verify_pr.outcome
     steps:
+
+      - name: Print Category
+        run: echo ${{ needs.triage.outputs.category }}
+
       - name: Checkout
         uses: actions/checkout@v2
 
@@ -525,6 +529,10 @@ jobs:
     runs-on: ubuntu-20.04
     if: ${{ always() && github.event.pull_request.draft == false && needs.chart-certification-redhat.outputs.verify_pr_outcome == 'failure' }}
     steps:
+
+      - name: Print Category
+        run: echo ${{ needs.chart-certification-redhat.outputs.verify_pr_outcome }}
+
       - name: Checkout
         uses: actions/checkout@v2
 
@@ -710,6 +718,10 @@ jobs:
     if: |
       ${{ github.event.pull_request.draft == false && needs.triage.outputs.category == 'community' }}
     steps:
+
+      - name: Print Category
+        run: echo ${{ needs.triage.outputs.category }}
+
       - name: Checkout
         uses: actions/checkout@v2
 
