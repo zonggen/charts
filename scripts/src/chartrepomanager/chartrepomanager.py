@@ -141,8 +141,11 @@ def create_index_from_report(category, report_path):
         sys.exit(1)
 
     print("category:", category)
+    redhat_to_community = bool(os.environ.get("REDHAT_TO_COMMUNITY"))
     if category == "partners":
         annotations["charts.openshift.io/providerType"] = "partner"
+    elif category == "redhat" and redhat_to_community:
+        annotations["charts.openshift.io/providerType"] = "community"
     else:
         annotations["charts.openshift.io/providerType"] = category
 
