@@ -461,6 +461,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: 'Print verify_pr'
+        if: ${{ always() }}
         continue-on-error: true
         run: echo ${{ steps.verify_pr.outcome }}
     outputs:
