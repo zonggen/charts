@@ -275,6 +275,8 @@ jobs:
     needs: triage
     runs-on: ubuntu-20.04
     continue-on-error: true
+    outputs:
+      verify_pr_outcome: ${{ steps.verify_pr.outcome }}
     if: ${{ github.event.pull_request.draft == false && needs.triage.outputs.category == 'redhat' }}
     steps:
       - name: Print Category
@@ -464,8 +466,6 @@ jobs:
         if: ${{ always() }}
         continue-on-error: true
         run: echo ${{ steps.verify_pr.outcome }}
-    outputs:
-      verify_pr_outcome: steps.verify_pr.outcome
 
       # - name: 'Merge PR'
       #   id: merge_pr
@@ -526,7 +526,7 @@ jobs:
     if: |
       always() &&
       github.event.pull_request.draft == false &&
-      needs.chart-certification-redhat.outputs.verify_pr_outcome != 'success'
+      needs.chart-certification-redhat.outputs.verify_pr_outcome == 'failure'
     steps:
 
       - name: Print Category
