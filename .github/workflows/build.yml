@@ -40,13 +40,6 @@ jobs:
     needs: triage
     runs-on: ubuntu-20.04
     if: ${{ github.event.pull_request.draft == false && needs.triage.outputs.category == 'partner' }}
-    outputs:
-      sanity-error-message: ${{ needs.triage.outputs.sanity-error-message }}
-      report-exists: ${{ needs.triage.outputs.report-exists }}
-      category: ${{ needs.triage.outputs.category }}
-      chart-entry-name: ${{ needs.triage.outputs.chart-entry-name }}
-      chart-name-with-version: ${{ needs.triage.outputs.chart-name-with-version }}
-      outcome: needs.triage.outputs.outcome
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -283,10 +276,7 @@ jobs:
     runs-on: ubuntu-20.04
     continue-on-error: true
     if: ${{ github.event.pull_request.draft == false && needs.triage.outputs.category == 'redhat' }}
-    outputs:
-      verify_pr_outcome: steps.verify_pr.outcome
     steps:
-
       - name: Print Category
         run: echo ${{ needs.triage.outputs.category }}
 
@@ -470,6 +460,8 @@ jobs:
         uses: hmarr/auto-approve-action@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+    outputs:
+      verify_pr_outcome: steps.verify_pr.outcome
 
       # - name: 'Merge PR'
       #   id: merge_pr
