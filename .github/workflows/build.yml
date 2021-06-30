@@ -276,7 +276,13 @@ jobs:
     runs-on: ubuntu-20.04
     continue-on-error: true
     outputs:
-      verify_pr_outcome: ${{ steps.verify_pr.outcome }}
+      verify-pr-outcome: ${{ steps.verify_pr.outcome }}
+      sanity-error-message: ${{ needs.triage.outputs.sanity-error-message }}
+      report-exists: ${{ needs.triage.outputs.report-exists }}
+      category: ${{ needs.triage.outputs.category }}
+      chart-entry-name: ${{ needs.triage.outputs.chart-entry-name }}
+      chart-name-with-version: ${{ needs.triage.outputs.chart-name-with-version }}
+      outcome: needs.triage.outputs.outcome
     if: ${{ github.event.pull_request.draft == false && needs.triage.outputs.category == 'redhat' }}
     steps:
       - name: Print Category
@@ -526,11 +532,11 @@ jobs:
     if: |
       always() &&
       github.event.pull_request.draft == false &&
-      needs.chart-certification-redhat.outputs.verify_pr_outcome == 'failure'
+      needs.chart-certification-redhat.outputs.verify-pr-outcome == 'failure'
     steps:
 
       - name: Print Category
-        run: echo ${{ needs.chart-certification-redhat.outputs.verify_pr_outcome }}
+        run: echo ${{ needs.chart-certification-redhat.outputs.verify-pr-outcome }}
 
       - name: Checkout
         uses: actions/checkout@v2
