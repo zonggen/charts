@@ -252,9 +252,13 @@ def check_report_success(directory, api_url, report_path, version):
 
     labels = get_labels(api_url)
     label_names = [l["name"] for l in labels]
+    print(f"[INFO] label_names: {label_names}")
 
     failed = report["failed"]
     passed = report["passed"]
+    # TODO: test play with devil
+    failed += 1
+    report["message"] = ["test fail message"]
     if failed > 0:
         msgs = []
         msgs.append("[ERROR] Chart verifier report includes failures:")
