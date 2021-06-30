@@ -526,7 +526,7 @@ jobs:
     if: |
       always() &&
       github.event.pull_request.draft == false &&
-      needs.chart-certification-redhat.outputs.verify_pr_outcome == 'failure'
+      needs.chart-certification-redhat.outputs.verify_pr_outcome != 'success'
     steps:
 
       - name: Print Category
