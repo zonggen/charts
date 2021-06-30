@@ -522,7 +522,7 @@ jobs:
     name: Chart Certification - Community (Red Hat)
     needs: chart-certification-redhat
     runs-on: ubuntu-20.04
-    if: ${{ github.event.pull_request.draft == false && needs.chart-certification-redhat.outputs.verify_pr_outcome == 'failure' }}
+    if: ${{ always() && github.event.pull_request.draft == false && needs.chart-certification-redhat.outputs.verify_pr_outcome == 'failure' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
