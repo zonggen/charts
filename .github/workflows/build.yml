@@ -281,6 +281,7 @@ jobs:
     name: Chart Certification - Red Hat
     needs: triage
     runs-on: ubuntu-20.04
+    continue-on-error: true
     if: ${{ github.event.pull_request.draft == false && needs.triage.outputs.category == 'redhat' }}
     outputs:
       verify_pr_outcome: steps.verify_pr.outcome
