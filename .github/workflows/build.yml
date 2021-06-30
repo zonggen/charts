@@ -701,7 +701,7 @@ jobs:
 
   chart-certification-community:
     name: Chart Certification - Community
-    needs: [triage, chart-certification-redhat]
+    needs: triage
     runs-on: ubuntu-20.04
     if: |
       ${{ github.event.pull_request.draft == false && needs.triage.outputs.category == 'community' }}
