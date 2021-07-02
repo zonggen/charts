@@ -12,6 +12,10 @@ jobs:
       github.event.action != 'labeled' ||
       github.event.label.name == 'publish'
     steps:
+      - name: Debug
+        run: |
+          echo ${{ github.event.review.state }}
+
       - name: Checkout
         uses: actions/checkout@v2
 
