@@ -155,7 +155,7 @@ jobs:
           docker pull quay.io/redhat-certification/chart-verifier:latest
           curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
           if [ "${{needs.triage.outputs.report-exists}}" != "true" ]; then
-            ./oc login --token=${{ secrets.CLUSTER_TOKEN }} --server=${API_SERVER}
+            ./oc login --insecure-skip-tls-verify --token=${{ secrets.CLUSTER_TOKEN }} --server=${API_SERVER}
             ve1/bin/sa-for-chart-testing --create chart-verifier-ci-${{ steps.get-repository.outputs.repository }}-${{ github.event.number }} --token token.txt --server ${API_SERVER}
           fi
           cd pr-branch
@@ -177,7 +177,7 @@ jobs:
           KUBECONFIG: /tmp/ci-kubeconfig
         run: |
           API_SERVER=$( echo -n ${{ secrets.API_SERVER }} | base64 -d)
-          ./oc login --token=${{ secrets.CLUSTER_TOKEN }} --server=${API_SERVER}
+          ./oc login --insecure-skip-tls-verify --token=${{ secrets.CLUSTER_TOKEN }} --server=${API_SERVER}
           ve1/bin/sa-for-chart-testing --delete chart-verifier-ci-${{ steps.get-repository.outputs.repository }}-${{ github.event.number }}
 
       - name: Save PR artifact
@@ -377,7 +377,7 @@ jobs:
           docker pull quay.io/redhat-certification/chart-verifier:latest
           curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
           if [ "${{needs.triage.outputs.report-exists}}" != "true" ]; then
-            ./oc login --token=${{ secrets.CLUSTER_TOKEN }} --server=${API_SERVER}
+            ./oc login --insecure-skip-tls-verify --token=${{ secrets.CLUSTER_TOKEN }} --server=${API_SERVER}
             ve1/bin/sa-for-chart-testing --create chart-verifier-ci-${{ steps.get-repository.outputs.repository }}-${{ github.event.number }} --token token.txt --server ${API_SERVER}
           fi
           cd pr-branch
@@ -399,7 +399,7 @@ jobs:
           KUBECONFIG: /tmp/ci-kubeconfig
         run: |
           API_SERVER=$( echo -n ${{ secrets.API_SERVER }} | base64 -d)
-          ./oc login --token=${{ secrets.CLUSTER_TOKEN }} --server=${API_SERVER}
+          ./oc login --insecure-skip-tls-verify --token=${{ secrets.CLUSTER_TOKEN }} --server=${API_SERVER}
           ve1/bin/sa-for-chart-testing --delete chart-verifier-ci-${{ steps.get-repository.outputs.repository }}-${{ github.event.number }}
 
       - name: Save PR artifact
@@ -591,7 +591,7 @@ jobs:
           docker pull quay.io/redhat-certification/chart-verifier:latest
           curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
           if [ "${{needs.chart-certification-redhat.outputs.report-exists}}" != "true" ]; then
-            ./oc login --token=${{ secrets.CLUSTER_TOKEN }} --server=${API_SERVER}
+            ./oc login --insecure-skip-tls-verify --token=${{ secrets.CLUSTER_TOKEN }} --server=${API_SERVER}
             ve1/bin/sa-for-chart-testing --create chart-verifier-ci-${{ steps.get-repository.outputs.repository }}-${{ github.event.number }} --token token.txt --server ${API_SERVER}
           fi
           cd pr-branch
@@ -613,7 +613,7 @@ jobs:
           KUBECONFIG: /tmp/ci-kubeconfig
         run: |
           API_SERVER=$( echo -n ${{ secrets.API_SERVER }} | base64 -d)
-          ./oc login --token=${{ secrets.CLUSTER_TOKEN }} --server=${API_SERVER}
+          ./oc login --insecure-skip-tls-verify --token=${{ secrets.CLUSTER_TOKEN }} --server=${API_SERVER}
           ve1/bin/sa-for-chart-testing --delete chart-verifier-ci-${{ steps.get-repository.outputs.repository }}-${{ github.event.number }}
 
       - name: Save PR artifact
@@ -753,7 +753,7 @@ jobs:
           docker pull quay.io/redhat-certification/chart-verifier:latest
           curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
           if [ "${{needs.triage.outputs.report-exists}}" != "true" ]; then
-            ./oc login --token=${{ secrets.CLUSTER_TOKEN }} --server=${API_SERVER}
+            ./oc login --insecure-skip-tls-verify --token=${{ secrets.CLUSTER_TOKEN }} --server=${API_SERVER}
             ve1/bin/sa-for-chart-testing --create chart-verifier-ci-${{ steps.get-repository.outputs.repository }}-${{ github.event.number }} --token token.txt --server ${API_SERVER}
           fi
           cd pr-branch
@@ -775,7 +775,7 @@ jobs:
           KUBECONFIG: /tmp/ci-kubeconfig
         run: |
           API_SERVER=$( echo -n ${{ secrets.API_SERVER }} | base64 -d)
-          ./oc login --token=${{ secrets.CLUSTER_TOKEN }} --server=${API_SERVER}
+          ./oc login --insecure-skip-tls-verify --token=${{ secrets.CLUSTER_TOKEN }} --server=${API_SERVER}
           ve1/bin/sa-for-chart-testing --delete chart-verifier-ci-${{ steps.get-repository.outputs.repository }}-${{ github.event.number }}
 
       - name: Save PR artifact
@@ -890,31 +890,31 @@ jobs:
         run: |
           echo '::set-output name=report_content::$(cat pr/report.yaml)'
 
-      - name: Release Charts
-        env:
-          GITHUB_REF: ${{ github.ref }}
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-          REPORT_CONTENT: ${{steps.set_report_env.outputs.report_content}}
-          CHART_ENTRY_NAME: ${{ needs.triage.outputs.chart-entry-name }}
-          CHART_NAME_WITH_VERSION: ${{ needs.triage.outputs.chart-name-with-version }}
-        id: release-charts
-        run: |
-          curl -L -o cr.tar.gz https://github.com/helm/chart-releaser/releases/download/v1.2.0/chart-releaser_1.2.0_linux_amd64.tar.gz
-          tar zxvf cr.tar.gz
-          sudo cp -f cr /usr/local/bin/cr
-          INDEX_BRANCH=$(if [ "${GITHUB_REF}" = "refs/heads/main" ]; then echo "refs/heads/gh-pages"; else echo "${GITHUB_REF}-gh-pages"; fi)
-          CWD=`pwd`
-          cd pr-branch
-          ../ve1/bin/chart-repo-manager --repository=${{ github.repository }} --index-branch=${INDEX_BRANCH} --api-url=${{ github.event.pull_request._links.self.href }} --pr-number=${{ github.event.number }}
-          cd ${CWD}
+      # - name: Release Charts
+      #   env:
+      #     GITHUB_REF: ${{ github.ref }}
+      #     GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      #     REPORT_CONTENT: ${{steps.set_report_env.outputs.report_content}}
+      #     CHART_ENTRY_NAME: ${{ needs.triage.outputs.chart-entry-name }}
+      #     CHART_NAME_WITH_VERSION: ${{ needs.triage.outputs.chart-name-with-version }}
+      #   id: release-charts
+      #   run: |
+      #     curl -L -o cr.tar.gz https://github.com/helm/chart-releaser/releases/download/v1.2.0/chart-releaser_1.2.0_linux_amd64.tar.gz
+      #     tar zxvf cr.tar.gz
+      #     sudo cp -f cr /usr/local/bin/cr
+      #     INDEX_BRANCH=$(if [ "${GITHUB_REF}" = "refs/heads/main" ]; then echo "refs/heads/gh-pages"; else echo "${GITHUB_REF}-gh-pages"; fi)
+      #     CWD=`pwd`
+      #     cd pr-branch
+      #     ../ve1/bin/chart-repo-manager --repository=${{ github.repository }} --index-branch=${INDEX_BRANCH} --api-url=${{ github.event.pull_request._links.self.href }} --pr-number=${{ github.event.number }}
+      #     cd ${CWD}
 
-      - name: Release
-        if: ${{ steps.release-charts.outputs.tag != '' }}
-        uses: softprops/action-gh-release@master
-        continue-on-error: true
-        with:
-          tag_name: ${{ steps.release-charts.outputs.tag }}
-          files: pr-branch/report.yaml
-          fail_on_unmatched_files: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Release
+      #   if: ${{ steps.release-charts.outputs.tag != '' }}
+      #   uses: softprops/action-gh-release@master
+      #   continue-on-error: true
+      #   with:
+      #     tag_name: ${{ steps.release-charts.outputs.tag }}
+      #     files: pr-branch/report.yaml
+      #     fail_on_unmatched_files: true
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
