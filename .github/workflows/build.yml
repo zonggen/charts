@@ -398,6 +398,7 @@ jobs:
           KUBECONFIG: /tmp/ci-kubeconfig
           VENDOR_TYPE: ${{ needs.triage.outputs.category }}
         run: |
+          exit(1)
           API_SERVER=$( echo -n ${{ secrets.API_SERVER }} | base64 -d)
           gpg --version
           docker pull quay.io/redhat-certification/chart-verifier:main
