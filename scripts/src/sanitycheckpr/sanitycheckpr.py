@@ -52,6 +52,7 @@ def ensure_only_chart_is_modified(api_url, repository, branch):
 
 
     if match_found:
+        print(pattern_match.groups())
         category, organization, chart, version = pattern_match.groups()
         print(f"::set-output name=category::{'partner' if category == 'partners' else category}")
         print("Downloading index.yaml", category, organization, chart, version)
