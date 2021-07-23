@@ -119,6 +119,11 @@ vendor:
     except git.exc.GitCommandError:
         logger.info(f"Local '{secrets.base_branch}' does not exist")
 
+    logger.info(f"Delete local '{secrets.base_branch}'")
+    try:
+        repo.git.branch('-D', secrets.base_branch)
+    except git.exc.GitCommandError:
+        logger.info(f"Local '{secrets.base_branch}' does not exist")
 
 @scenario('features/report_and_chart_src.feature', "The partner hashicorp submits an error-free chart source with report for vault")
 def test_partner_chart_src_submission():
