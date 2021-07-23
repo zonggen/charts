@@ -17,6 +17,7 @@ import shutil
 from tempfile import TemporaryDirectory
 from dataclasses import dataclass
 from string import Template
+from time import sleep
 
 import git
 import yaml
@@ -66,29 +67,29 @@ vendor:
         chart_name, chart_version = get_name_and_version_from_report(
             test_report)
 
-    test_repo = os.environ.get("TEST_REPO")
-    if not test_repo:
-        raise Exception("TEST_REPO environment variable not defined")
+    # test_repo = os.environ.get("TEST_REPO")
+    # if not test_repo:
+    #     raise Exception("TEST_REPO environment variable not defined")
 
-    fork_repo = os.environ.get("FORK_REPO")
-    if not fork_repo:
-        raise Exception("FORK_REPO environment variable not defined")
-    bot_name = fork_repo.split("/")[0]
+    # fork_repo = os.environ.get("FORK_REPO")
+    # if not fork_repo:
+    #     raise Exception("FORK_REPO environment variable not defined")
+    # bot_name = fork_repo.split("/")[0]
 
-    cluster_token = os.environ.get("CLUSTER_TOKEN")
-    if not cluster_token:
-        raise Exception("CLUSTER_TOKEN environment variable not defined")
+    # cluster_token = os.environ.get("CLUSTER_TOKEN")
+    # if not cluster_token:
+    #     raise Exception("CLUSTER_TOKEN environment variable not defined")
 
-    api_server = os.environ.get("API_SERVER")
-    if not api_server:
-        raise Exception("API_SERVER environment variable not defined")
+    # api_server = os.environ.get("API_SERVER")
+    # if not api_server:
+    #     raise Exception("API_SERVER environment variable not defined")
 
-    bot_token = os.environ.get("BOT_TOKEN")
-    if not bot_token:
-        bot_name = "github-actions[bot]"
-        bot_token = os.environ.get("GITHUB_TOKEN")
-        if not bot_token:
-            raise Exception("BOT_TOKEN environment variable not defined")
+    # bot_token = os.environ.get("BOT_TOKEN")
+    # if not bot_token:
+    #     bot_name = "github-actions[bot]"
+    #     bot_token = os.environ.get("GITHUB_TOKEN")
+    #     if not bot_token:
+    #         raise Exception("BOT_TOKEN environment variable not defined")
 
     vendor_type = os.environ.get("VENDOR_TYPE")
     if not vendor_type:
@@ -96,10 +97,15 @@ vendor:
             f"VENDOR_TYPE environment variable not defined, default to `all`")
         vendor_type = 'all'
 
+    bot_name = 'abai-test-bot'
+    test_repo = fork_repo = f'{bot_name}/charts'
+    api_server, cluster_token = '', ''
+    bot_token = os.environ.get("BOT_TOKEN")
+
     base_branches = []
     fork_branches = []
-    test_repo = str(base64.b64decode(test_repo), encoding="utf-8")
-    fork_repo = str(base64.b64decode(fork_repo), encoding="utf-8")
+    # test_repo = str(base64.b64decode(test_repo), encoding="utf-8")
+    # fork_repo = str(base64.b64decode(fork_repo), encoding="utf-8")
 
     repo = git.Repo()
     pr_base_branch = repo.active_branch.name

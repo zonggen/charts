@@ -60,22 +60,27 @@ vendor:
         chart_name, chart_version = get_name_and_version_from_chart_tar(
             test_chart)
 
-    test_repo = os.environ.get("TEST_REPO")
-    if not test_repo:
-        raise Exception("TEST_REPO environment variable not defined")
-    fork_repo = os.environ.get("FORK_REPO")
-    if not fork_repo:
-        raise Exception("FORK_REPO environment variable not defined")
-    bot_name = fork_repo.split("/")[0]
-    cluster_token = os.environ.get("CLUSTER_TOKEN")
-    if not cluster_token:
-        raise Exception("CLUSTER_TOKEN environment variable not defined")
+    # test_repo = os.environ.get("TEST_REPO")
+    # if not test_repo:
+    #     raise Exception("TEST_REPO environment variable not defined")
+    # fork_repo = os.environ.get("FORK_REPO")
+    # if not fork_repo:
+    #     raise Exception("FORK_REPO environment variable not defined")
+    # bot_name = fork_repo.split("/")[0]
+    # cluster_token = os.environ.get("CLUSTER_TOKEN")
+    # if not cluster_token:
+    #     raise Exception("CLUSTER_TOKEN environment variable not defined")
+    # bot_token = os.environ.get("BOT_TOKEN")
+    # if not bot_token:
+    #     bot_name = "github-actions[bot]"
+    #     bot_token = os.environ.get("GITHUB_TOKEN")
+    #     if not bot_token:
+    #         raise Exception("BOT_TOKEN environment variable not defined")
+
+    bot_name = 'abai-test-bot'
+    test_repo = fork_repo = f'{bot_name}/charts'
+    cluster_token = ''
     bot_token = os.environ.get("BOT_TOKEN")
-    if not bot_token:
-        bot_name = "github-actions[bot]"
-        bot_token = os.environ.get("GITHUB_TOKEN")
-        if not bot_token:
-            raise Exception("BOT_TOKEN environment variable not defined")
 
     repo = git.Repo()
     current_branch = repo.active_branch.name
@@ -91,8 +96,8 @@ vendor:
 
     base_branch = 'vault-0.13.0-tar-without-report'
     fork_branch = base_branch + '-pr'
-    test_repo = str(base64.b64decode(test_repo), encoding="utf-8")
-    fork_repo = str(base64.b64decode(fork_repo), encoding="utf-8")
+    # test_repo = str(base64.b64decode(test_repo), encoding="utf-8")
+    # fork_repo = str(base64.b64decode(fork_repo), encoding="utf-8")
 
     secrets = Secret(cluster_token, test_repo, fork_repo,
                      bot_name, bot_token, base_branch, fork_branch)
