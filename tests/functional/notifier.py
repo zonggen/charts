@@ -25,7 +25,7 @@ def _set_endpoint_key(key, env_var):
 
 
 def _set_endpoint():
-    _set_endpoint_key("access_token", "GITHUB_AUTH_TOKEN")
+    _set_endpoint_key("access_token", "BOT_TOKEN")
     _set_endpoint_key("organization", "GITHUB_ORGANIZATION")
     _set_endpoint_key("repo", "GITHUB_REPO")
 
