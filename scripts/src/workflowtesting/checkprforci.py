@@ -72,18 +72,18 @@ def main():
     args = parser.parse_args()
     if not args.api_url:
         if verify_user(args.username):
-            print(f"[INFO] User authorized for manual invocation - run tests.")
-            print(f"::set-output name=run-tests::true")
+            print("[INFO] User authorized for manual invocation - run tests.")
+            print("::set-output name=run-tests::true")
         else:
-            print(f"[INFO] User not authorized for manual invocation - do not run tests.")
+            print("[INFO] User not authorized for manual invocation - do not run tests.")
     elif check_if_ci_only_is_modified(args.api_url):
         if verify_user(args.username):
-            print(f"[INFO] PR is workflow changes only and user is authorized - run tests.")
-            print(f"::set-output name=run-tests::true")
+            print("[INFO] PR is workflow changes only and user is authorized - run tests.")
+            print("::set-output name=run-tests::true")
         else:
-            print(f"[INFO] PR is workflow changes only but user is not authorized - do not run tests.")
+            print("[INFO] PR is workflow changes only but user is not authorized - do not run tests.")
     else:
-        print(f"[INFO] Non workflow changes were found - do not run tests")
+        print("[INFO] Non workflow changes were found - do not run tests")
 
 
 if __name__ == "__main__":
