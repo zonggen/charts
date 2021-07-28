@@ -10,9 +10,9 @@ on:
           required: true
           default: 'all'
         notify-id:
-          description: 'Issue notification {OWNERS,None,<github id>}'
+          description: 'Issue notification {OWNERS,none,<github id>}'
           required: true
-          default: 'None'
+          default: 'none'
 
 
 jobs:
