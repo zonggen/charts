@@ -9,6 +9,10 @@ on:
           description: 'Vendor type {all,partner,redhat,community}'
           required: true
           default: 'all'
+        dry-run:
+          description: 'Run tests but do not open issues {true,false}'
+          required: true
+          default: true
 
 jobs:
   workflow-test:
@@ -55,6 +59,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           API_URL: = ${{ github.event.pull_request._links.self.href }}
           VENDOR_TYPE: = ${{ github.event.inputs.vendor-type }}
+          DRY_RUN: = ${{ github.event.inputs.dry-run }}
         run: |
           # Run the wokflow tests
           if [ "${{github.event.inputs.vendor-type}}" == "" ]; then
