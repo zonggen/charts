@@ -117,14 +117,14 @@ jobs:
         shell: bash
 
       - uses: actions/cache@v2
-        if: ${{ steps.sanity_check_pr_content.outputs.report-exists != 'true' && steps.check_ci_changes.outputs.run-tests != 'true}}
+        if: ${{ steps.sanity_check_pr_content.outputs.report-exists != 'true' && steps.check_ci_changes.outputs.run-tests != 'true'}}
         id: cache
         with:
           path: oc
           key: ${{ steps.get-date.outputs.date }}
 
       - name: Install oc
-        if: ${{ steps.sanity_check_pr_content.outputs.report-exists != 'true' && steps.cache.outputs.cache-hit != 'true' && && steps.check_ci_changes.outputs.run-tests != 'true}}
+        if: ${{ steps.sanity_check_pr_content.outputs.report-exists != 'true' && steps.cache.outputs.cache-hit != 'true' && && steps.check_ci_changes.outputs.run-tests != 'true'}}
         run: |
           curl -sLO https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/openshift-client-linux.tar.gz
           tar zxvf openshift-client-linux.tar.gz oc
