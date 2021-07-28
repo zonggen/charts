@@ -64,7 +64,7 @@ jobs:
         run: |
           # Run the wokflow tests
           echo "[INFO] Vendor type ${{ env.TEST_VENDOR_TYPE }}"
-          echo "[INFO] Notify ID ${{ env.NOTIFY_ID }}"
+          echo "[INFO] Notify ID ${{ env.TEST_NOTIFY_ID }}"
           if [ "${{github.event.inputs.vendor-type}}" == "" ]; then
               echo "../ve1/bin/pytest tests/ --log-cli-level=INFO --ignore=tests/functional/test_submitted_charts.py"
           else
