@@ -124,13 +124,15 @@ jobs:
           key: ${{ steps.get-date.outputs.date }}
 
       - name: Install oc
+        id: install-oc
         if: ${{ steps.sanity_check_pr_content.outputs.report-exists != 'true' && steps.cache.outputs.cache-hit != 'true' && steps.check_ci_changes.outputs.run-tests != 'true'}}
         run: |
           curl -sLO https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/openshift-client-linux.tar.gz
           tar zxvf openshift-client-linux.tar.gz oc
+          echo "::set-output name=oc-installed::true"
 
       - name: Get Repository
-        if: ${{ steps.sanity_check_pr_content.outputs.report-exists != 'true' }}
+        if: ${{ steps.sanity_check_pr_content.outputs.report-exists != 'true' && steps.check_ci_changes.outputs.run-tests != 'true'}}
         id: get-repository
         run: |
           REPO=$(echo ${{ github.repository }} | tr '\/' '-')
@@ -158,7 +160,7 @@ jobs:
 
 
       - name: Delete Namespace
-        if: always() && ${{steps.sanity_check_pr_content.outputs.report-exists != 'true' && steps.check_ci_changes.outputs.run-tests != 'true'}}
+        if: ${{steps.install-oc.outputs.oc-installed == 'true' }}
         env:
           KUBECONFIG: /tmp/ci-kubeconfig
         run: |
