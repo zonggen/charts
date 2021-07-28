@@ -9,10 +9,11 @@ on:
           description: 'Vendor type {all,partner,redhat,community}'
           required: true
           default: 'all'
-        dry-run:
-          description: 'Run tests but do not open issues {true,false}'
+        notify-id:
+          description: 'Issue notification {OWNERS,none,<github id>}'
           required: true
-          default: true
+          default: 'none'
+
 
 jobs:
   workflow-test:
@@ -58,10 +59,12 @@ jobs:
           FORK_REPO: ${{ secrets.FORK_REPO }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           API_URL: = ${{ github.event.pull_request._links.self.href }}
-          VENDOR_TYPE: = ${{ github.event.inputs.vendor-type }}
-          DRY_RUN: = ${{ github.event.inputs.dry-run }}
+          TEST_VENDOR_TYPE: = ${{ github.event.inputs.vendor-type }}
+          TEST_NOTIFY_ID: = ${{ github.event.inputs.notify-id }}
         run: |
           # Run the wokflow tests
+          echo "[INFO] Vendor type ${{ env.TEST_VENDOR_TYPE }}"
+          echo "[INFO] Notify ID ${{ env.NOTIFY_ID }}"
           if [ "${{github.event.inputs.vendor-type}}" == "" ]; then
               echo "../ve1/bin/pytest tests/ --log-cli-level=INFO --ignore=tests/functional/test_submitted_charts.py"
           else
