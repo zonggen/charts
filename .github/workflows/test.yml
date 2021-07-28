@@ -38,6 +38,9 @@ jobs:
           cd scripts && ../ve1/bin/pip3 install -r requirements.txt && cd ..
           cd scripts && ../ve1/bin/python3 setup.py install && cd ..
 
+      - name: Run env
+        run: env
+        
       - name: Check Request
         id: check_request
         run: |
