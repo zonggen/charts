@@ -38,8 +38,8 @@ jobs:
           cd scripts && ../ve1/bin/pip3 install -r requirements.txt && cd ..
           cd scripts && ../ve1/bin/python3 setup.py install && cd ..
 
-      - name: Check PR Content
-        id: check_pr_content
+      - name: Check Request
+        id: check_request
         run: |
           # check if workflow testing should run.
           if [ "${{github.event.inputs.vendor-type}}" == "" ]; then
@@ -52,7 +52,7 @@ jobs:
 
       - name: Test CI Workflow
         id: test_ci_workflow
-        if: ${{ steps.check_pr_content.outputs.run-tests == 'true'}}
+        if: ${{ steps.check_request.outputs.run-tests == 'true'}}
         env:
           CLUSTER_TOKEN: ${{ secrets.CLUSTER_TOKEN }}
           TEST_REPO: ${{ secrets.TEST_REPO }}
