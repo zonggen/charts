@@ -1,18 +1,6 @@
 name: Test Workflow
 
-on:
-  pull_request:
-    types: [opened, synchronize, reopened, edited, labeled, workflow_dispatch]
-  workflow_dispatch:
-      inputs:
-        vendor-type:
-          description: 'Vendor type {all,partner,redhat,community}'
-          required: true
-          default: 'all'
-        notify-id:
-          description: 'Issue notification {OWNERS,none,<github id>}'
-          required: true
-          default: 'none'
+on: workflow_dispatch
 
 
 jobs:
@@ -40,36 +28,3 @@ jobs:
 
       - name: Run env
         run: env
-        
-      - name: Check Request
-        id: check_request
-        run: |
-          # check if workflow testing should run.
-          if [ "${{github.event.inputs.vendor-type}}" == "" ]; then
-              echo "[INFO] check if PR contains only workflow changes and user is authorized"
-              ve1/bin/check-pr-for-ci --verify-user=${{ github.event.pull_request.user.login }} --api-url=${{ github.event.pull_request._links.self.href }}
-          else
-              echo "[INFO] manual invocation - check if user is authorized"
-              ve1/bin/check-pr-for-ci --verify-user=${{ github.actor }}
-          fi
-
-      - name: Test CI Workflow
-        id: test_ci_workflow
-        if: ${{ steps.check_request.outputs.run-tests == 'true'}}
-        env:
-          CLUSTER_TOKEN: ${{ secrets.CLUSTER_TOKEN }}
-          TEST_REPO: ${{ secrets.TEST_REPO }}
-          FORK_REPO: ${{ secrets.FORK_REPO }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          API_URL: = ${{ github.event.pull_request._links.self.href }}
-          TEST_VENDOR_TYPE: = ${{ github.event.inputs.vendor-type }}
-          TEST_NOTIFY_ID: = ${{ github.event.inputs.notify-id }}
-        run: |
-          # Run the wokflow tests
-          echo "[INFO] Vendor type ${{ env.TEST_VENDOR_TYPE }}"
-          echo "[INFO] Notify ID ${{ env.TEST_NOTIFY_ID }}"
-          if [ "${{github.event.inputs.vendor-type}}" == "" ]; then
-              echo "../ve1/bin/pytest tests/ --log-cli-level=INFO --ignore=tests/functional/test_submitted_charts.py"
-          else
-              echo "../ve1/bin/pytest tests/functional/test_submitted_charts.py --log-cli-level=INFO"
-          fi
