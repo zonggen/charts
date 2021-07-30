@@ -268,6 +268,29 @@ def submission_tests_run_for_submitted_charts(secrets):
             r = github_api(
                 'post', f'repos/{secrets.test_repo}/git/refs', secrets.bot_token, json=data)
 
+            # Remove the OWNERS file and chart files from base branch
+            logger.info(
+                f"Remove {chart_dir}/{chart_version} and {chart_dir}/OWNERS from {secrets.test_repo}:{base_branch}")
+            try:
+                repo.git.rm('-rf', '--cached', f'{chart_dir}/{chart_version}')
+                repo.git.commit(
+                    '-m', f'Remove {chart_dir}/{chart_version}')
+                repo.git.push(f'https://x-access-token:{secrets.bot_token}@github.com/{secrets.test_repo}',
+                              f'HEAD:refs/heads/{base_branch}')
+            except git.exc.GitCommandError:
+                logger.info(
+                    f"{chart_dir}/{chart_version} not exist on {secrets.test_repo}:{base_branch}")
+
+            try:
+                repo.git.rm('-rf', '--cached', f'{chart_dir}/OWNERS')
+                repo.git.commit(
+                    '-m', f'Remove {chart_dir}/OWNERS')
+                repo.git.push(f'https://x-access-token:{secrets.bot_token}@github.com/{secrets.test_repo}',
+                              f'HEAD:refs/heads/{base_branch}')
+            except git.exc.GitCommandError:
+                logger.info(
+                    f"{chart_dir}/OWNERS not exist on {secrets.test_repo}:{base_branch}")
+
             # Modify the OWNERS file so the bot account can test chart submission flow
             values = {'bot_name': secrets.bot_name,
                       'vendor': vendor_name, 'chart_name': chart_name}

@@ -12,7 +12,7 @@ from retrying import retry
 
 GITHUB_BASE_URL = 'https://api.github.com'
 # The sandbox repository where we run all our tests on
-TEST_REPO = 'openshift-helm-charts/sandbox'
+TEST_REPO = 'zonggen/sandbox'
 # The prod repository where we create notification issues
 PROD_REPO = 'openshift-helm-charts/charts'
 # The prod branch where we store all chart files
