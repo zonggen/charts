@@ -36,7 +36,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          token: ${{ secrets.BOT_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
       - name: Set up Python 3.x Part 1
@@ -76,7 +76,7 @@ jobs:
           SOFTWARE_NAME: ${{ github.event.inputs.software-name }}
           SOFTWARE_VERSION: ${{ github.event.inputs.software-version }}
           BOT_NAME: ${{ secrets.BOT_NAME }}
-          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          BOT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Run the wokflow tests
           if [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
