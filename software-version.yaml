@@ -1,0 +1,4 @@
+openshift:
+  release-client-version: ''
+chart-verifier:
+  latest-manifest-digest: ''
