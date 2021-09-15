@@ -224,8 +224,8 @@ def submission_tests_run_for_submitted_charts(secrets):
             chart_dir = f'charts/{vendor_type}/{vendor_name}/{chart_name}'
             base_branch = f'{secrets.pr_base_branch}-{vendor_type}-{vendor_name}-{chart_name}-{chart_version}'
             pr_branch = f'{secrets.pr_base_branch}-{vendor_type}-{vendor_name}-{chart_name}-{chart_version}-pr'
-            secrets.base_branches.append(base_branch)
-            secrets.pr_branches.append(pr_branch)
+            secrets.base_branches.append(base_branch if secrets.software_name else f'{secrets.software_name}-{base_branch}')
+            secrets.pr_branches.append(pr_branch if secrets.software_name else f'{secrets.software_name}-{pr_branch}')
             repo.git.checkout('tmp')
             repo.git.checkout('-b', base_branch)
 
